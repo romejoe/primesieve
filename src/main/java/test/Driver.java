@@ -1,9 +1,11 @@
-import com.stantonj.primesieve.PrimeSieve;
+package test;
+
+import org.primesieve.PrimeSieve;
 
 public class Driver {
 
     public static void main(String[] args) {
-        long[] primes = PrimeSieve.SINGLETON.generatePrimes(1000, 50000000L);
+        long[] primes = PrimeSieve.SINGLETON.generatePrimes(1000, 5000L);
         for (long p : primes) {
             System.out.println(p);
         }

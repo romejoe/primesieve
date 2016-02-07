@@ -1,4 +1,4 @@
-package com.stantonj.primesieve;
+package org.primesieve;
 
 import com.sun.jna.Callback;
 import com.sun.jna.Library;

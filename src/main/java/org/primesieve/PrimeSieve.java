@@ -1,8 +1,13 @@
-package com.stantonj.primesieve;
+package org.primesieve;
 
 import com.sun.jna.Memory;
 import com.sun.jna.Native;
+import com.sun.jna.NativeLibrary;
 import com.sun.jna.Pointer;
+import cz.adamh.utils.NativeUtils;
+
+import java.util.Locale;
+import java.util.Properties;
 
 import static java.lang.Math.toIntExact;
 
@@ -12,12 +17,58 @@ public class PrimeSieve {
     public static final PrimeSieveRaw INSTANCE;
     public static final PrimeSieve SINGLETON = new PrimeSieve();
 
+
+    private static Object LoadNativePath(String path, String name, Class clz){
+       //String tmp = System.getProperty("java.library.path");
+        //System.setProperty("java.library.path", path);
+        //Object ret = Native.loadLibrary(name, clz);
+        //System.setProperty("java.library.path", tmp);
+        NativeLibrary.addSearchPath(path, name);
+        return Native.loadLibrary(name, clz);
+    }
+
     static {
-        int archSize = LONGSIZE;
+        Properties props = System.getProperties();
+        PrimeSieveRaw inst = null;
+        if(!props.containsKey("org.primesieve.library")) {
 
-        String arch = "primesieve_x" + archSize;
+            int archSize = LONGSIZE;
 
-        INSTANCE = (PrimeSieveRaw) Native.loadLibrary(arch, PrimeSieveRaw.class);
+            String arch = "primesieve_x" + archSize;
+
+            try {
+                inst = (PrimeSieveRaw) Native.loadLibrary(arch, PrimeSieveRaw.class);
+            }
+            catch(java.lang.UnsatisfiedLinkError e){
+                String path;
+                String name;
+
+                String OS = System.getProperty("os.name", "generic").toLowerCase(Locale.ENGLISH);
+                System.out.println(OS);
+                if ((OS.contains("mac")) || (OS.contains("darwin"))) {
+                    path = String.format("/libprimesieve_x%s.dylib", archSize);
+                } else if (OS.contains("nux")) {
+                    path = String.format("/libprimesieve_x%s.so", archSize);
+                } else {
+                    throw new UnsatisfiedLinkError("Library for platform unsupported");
+                }
+                try {
+                    //inst = (PrimeSieveRaw) NativeUtils.loadLibraryFromJar(path, (String p) -> LoadNativePath(p, "libprimesieve", PrimeSieveRaw.class));
+                    NativeUtils.loadLibraryFromJar(path);
+                    inst = (PrimeSieveRaw) Native.loadLibrary(PrimeSieveRaw.class);
+                } catch(Exception e2){
+                    throw new UnsatisfiedLinkError("Error loading library: " + e2.getMessage());
+                }
+            }
+
+
+
+        }
+        else{
+            inst = (PrimeSieveRaw) LoadNativePath(props.getProperty("org.primesieve.library"), "primesieve", PrimeSieveRaw.class);
+        }
+
+        INSTANCE = inst;
     }
 
     private PrimeSieve() {
