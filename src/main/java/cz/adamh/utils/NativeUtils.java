@@ -37,8 +37,8 @@ import java.util.function.Function;
  * JAR archive. These libraries usualy contain implementation of some methods in
  * native code (using JNI - Java Native Interface).
  *
- * @see http://adamheinrich.com/blog/2012/how-to-load-native-jni-library-from-jar
- * @see https://github.com/adamheinrich/native-utils
+ * see http://adamheinrich.com/blog/2012/how-to-load-native-jni-library-from-jar
+ * see https://github.com/adamheinrich/native-utils
  *
  */
 public class NativeUtils {
@@ -59,7 +59,8 @@ public class NativeUtils {
      * @param cb Consumer to call on native library
      * @throws IOException If temporary file creation or read/write operation fails
      * @throws IllegalArgumentException If source file (param path) does not exist
-     * @throws IllegalArgumentException If the path is not absolute or if the filename is shorter than three characters (restriction of {@see File#createTempFile(java.lang.String, java.lang.String)}).
+     * @throws IllegalArgumentException If the path is not absolute or if the filename is shorter than three characters (restriction of { File#createTempFile(java.lang.String, java.lang.String)}).
+     * @return returns object return from cb
      */
     public static Object loadLibraryFromJar(String path, Function<String, Object> cb) throws IOException {
 

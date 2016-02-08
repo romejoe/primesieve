@@ -1,7 +1,9 @@
-group 'com.github.stantonj'
+group 'com.stantonj'
 version '1.0-SNAPSHOT'
 
 apply plugin: 'java'
+apply plugin: 'maven'
+apply plugin: 'signing'
 
 sourceCompatibility = 1.8
 
@@ -23,4 +25,67 @@ task fatJar(type: Jar) {
     baseName = project.name + '-all'
     from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
     with jar
+}
+
+task javadocJar(type: Jar) {
+    classifier = 'javadoc'
+    from javadoc
+}
+
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+artifacts {
+    archives javadocJar, sourcesJar
+}
+
+signing {
+    sign configurations.archives
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+                authentication(userName: ossrhUsername, password: ossrhPassword)
+            }
+
+            snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+                authentication(userName: ossrhUsername, password: ossrhPassword)
+            }
+
+            pom.project {
+                name 'Prime Sieve'
+                packaging 'jar'
+                // optionally artifactId can be defined here
+                description 'Provides access to the native primesieve library to quickly generate primes.'
+                url 'https://github.com/romejoe/primesieve'
+
+                scm {
+                    connection 'scm:git:https://github.com/romejoe/primesieve.git'
+                    developerConnection 'scm:git:https://github.com/romejoe/primesieve.git'
+                    url 'https://github.com/romejoe/primesieve'
+                }
+
+                licenses {
+                    license {
+                        name 'The MIT License'
+                        url 'https://raw.githubusercontent.com/romejoe/primesieve/master/LICENSE'
+                    }
+                }
+
+                developers {
+                    developer {
+                        id 'stantoje'
+                        name 'Joseph Stanton'
+                        email 'stantoje@sunyit.edu'
+                    }
+                }
+            }
+        }
+    }
 }
